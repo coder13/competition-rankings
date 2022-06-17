@@ -1,0 +1,11 @@
+.main {
+    display:flex;
+}
+
+.left {
+    flex: 0.2;
+}
+
+.right {
+    flex: 0.8;
+}
