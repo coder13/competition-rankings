@@ -1,5 +1,6 @@
 import AppBar from '@mui/material/AppBar';
 import { Box, Toolbar, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 export function Header() {
   return (
@@ -7,7 +8,9 @@ export function Header() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Competition Rankings
+            <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Competition Rankings
+            </Link>
           </Typography>
           {/* <Button color="inherit">Login</Button> */}
         </Toolbar>

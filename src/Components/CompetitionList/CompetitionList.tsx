@@ -8,8 +8,8 @@ export default function CompetitionList() {
     isLoading,
     error,
   } = useGetCompetitionsQuery({
-    start: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    end: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    start: new Date(Date.now() - 2 * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end: new Date(Date.now()).toISOString().split('T')[0],
   });
 
   if (isLoading) {

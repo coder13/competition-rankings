@@ -14,6 +14,7 @@ export default function CompetitionListItemLink({
   name,
   country_iso2,
   start_date,
+  end_date,
 }: CompetitionListItemLinkProps) {
   return (
     <ListItem button component={Link} to={`/competitions/${id}`}>
@@ -26,11 +27,11 @@ export default function CompetitionListItemLink({
       </ListItemIcon>
       <ListItemText
         primary={name}
-        secondary={new Date(start_date).toLocaleDateString('en-US', {
+        secondary={Intl.DateTimeFormat('en', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
-        })}
+        }).formatRange(new Date(start_date + 'T00:00:00'), new Date(end_date + 'T00:00:00'))}
       />
     </ListItem>
   );

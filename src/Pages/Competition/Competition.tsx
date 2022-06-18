@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useGetCompetitionByIdQuery } from 'Services';
+import SumOfRanks from './SumOfRanks';
 
 export default function Competition() {
   const { competitionId } = useParams();
@@ -16,7 +17,8 @@ export default function Competition() {
 
   return (
     <div>
-      <div>{competition.events.length}</div>
+      <p>{competition.name}</p>
+      <SumOfRanks {...competition} />
     </div>
   );
 }
