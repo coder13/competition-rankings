@@ -1,7 +1,19 @@
-import { ListSubheader, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { Box } from '@mui/system';
-import { Competition } from '@wca/helpers';
+import { Competition, Result, Round } from '@wca/helpers';
 import { useCallback, useMemo } from 'react';
+
+const rankingResult = (round: Round, result: Result) => {
+  switch (round.format) {
+    case '1':
+    case '2':
+    case '3':
+      return result.best;
+    case 'a':
+    case 'm':
+      return result.average;
+  }
+};
 
 export const parseActivityCode = (activityCode: string) => {
   const [, e, r, g, a] = activityCode.match(/(\w+)(?:-r(\d+))?(?:-g(\d+))?(?:-a(\d+))?/);
@@ -13,19 +25,50 @@ export const parseActivityCode = (activityCode: string) => {
   };
 };
 
-export default function SumOfRanks({ persons, events }: Competition) {
+export default function PersonRankings({ persons, events }: Competition) {
+  const eventsExpanded = useMemo(
+    () =>
+      events.map((event) => ({
+        ...event,
+        rounds: event.rounds.map((round) => ({
+          ...round,
+          eventId: event.id,
+          finalRound: parseActivityCode(round.id)?.roundNumber === event.rounds.length,
+          activitiyId: round.id,
+          winningResult: rankingResult(
+            event.rounds[event.rounds.length - 1],
+            event.rounds[event.rounds.length - 1].results.find((result) => result.ranking === 1)
+          ),
+        })),
+      })),
+    [events]
+  );
+
   const resultsForPerson = useCallback(
     (registrantId: number) =>
-      events
+      eventsExpanded
         .map((event) =>
           event.rounds
-            .map((round) => ({
-              activityCode: round.id,
-              finalRound: parseActivityCode(round.id)?.roundNumber === event.rounds.length,
-              ...(round.results.find((result) => result.personId === registrantId) ?? {
-                ranking: round.results.length,
-              }),
-            }))
+            .map((round) => {
+              const result = round.results.find((result) => result.personId === registrantId);
+              const winningResult = round.winningResult;
+
+              return {
+                activityCode: round.id,
+                finalRound: round.finalRound,
+                ...(result ?? {
+                  ranking: round.results.length,
+                }),
+                kinch:
+                  event.id !== '333mbf' &&
+                  result &&
+                  winningResult &&
+                  winningResult > 0 &&
+                  rankingResult(round, result) > 0
+                    ? (winningResult as number) / (rankingResult(round, result) as number)
+                    : 0,
+              };
+            })
             .map((result) => ({
               ...result,
               eventId: event.id,
@@ -33,7 +76,7 @@ export default function SumOfRanks({ persons, events }: Competition) {
             .reduce((xs, x) => xs.concat(x), [])
         )
         .reduce((xs, x) => xs.concat(x), []),
-    [events]
+    [eventsExpanded]
   );
 
   const personRanks = useMemo(
@@ -51,11 +94,15 @@ export default function SumOfRanks({ persons, events }: Competition) {
           const allResults = resultsForPerson(person.registrantId);
           const rankings = allResults.map((result) => result.ranking);
           const finalRounds = allResults.filter((result) => !!result.finalRound);
+          const kinch =
+            allResults.filter((result) => result.best > 0).reduce((a, b) => a + b.kinch, 0) /
+            allResults.length;
 
           return {
             ...person,
             sumOfRanks: rankings.reduce((a, b) => a + b),
             medals: finalRounds.filter((result) => result.ranking <= 3),
+            kinch,
           };
         }),
     [events, persons, resultsForPerson]
@@ -63,13 +110,13 @@ export default function SumOfRanks({ persons, events }: Competition) {
 
   return (
     <Box>
-      <ListSubheader>Sum Of Ranks</ListSubheader>
       <Table>
         <TableHead>
           <TableRow>
             <TableCell>Position</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Sum of Ranks</TableCell>
+            <TableCell>Kinch</TableCell>
             <TableCell>Medals</TableCell>
           </TableRow>
         </TableHead>
@@ -81,6 +128,7 @@ export default function SumOfRanks({ persons, events }: Competition) {
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{person.name}</TableCell>
                 <TableCell>{person.sumOfRanks}</TableCell>
+                <TableCell>{(person.kinch * 100).toFixed(2)}</TableCell>
                 <TableCell>
                   {person.medals.length > 0 &&
                     `${person.medals.length} (${person.medals
