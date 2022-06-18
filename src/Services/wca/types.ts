@@ -67,4 +67,5 @@ export interface FetchCompetitionsArgs {
   start?: ISODate;
   end?: ISODate;
   sort?: string;
+  q?: string;
 }

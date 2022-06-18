@@ -12,10 +12,17 @@ interface CompetitionListItemLinkProps extends Competition {}
 export default function CompetitionListItemLink({
   id,
   name,
+  city,
   country_iso2,
   start_date,
   end_date,
 }: CompetitionListItemLinkProps) {
+  const dateText = Intl.DateTimeFormat('en', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).formatRange(new Date(start_date + 'T00:00:00'), new Date(end_date + 'T00:00:00'));
+
   return (
     <ListItem button component={Link} to={`/competitions/${id}`}>
       <ListItemIcon>
@@ -25,14 +32,7 @@ export default function CompetitionListItemLink({
           <FlagIcon code={country_iso2.toLowerCase()} size="lg" />
         )}
       </ListItemIcon>
-      <ListItemText
-        primary={name}
-        secondary={Intl.DateTimeFormat('en', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }).formatRange(new Date(start_date + 'T00:00:00'), new Date(end_date + 'T00:00:00'))}
-      />
+      <ListItemText primary={name} secondary={`${city} | ${dateText}`} />
     </ListItem>
   );
 }
