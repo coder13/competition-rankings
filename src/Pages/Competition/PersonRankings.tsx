@@ -1,7 +1,8 @@
+import { useCallback, useMemo, useState } from 'react';
 import { Box } from '@mui/system';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import { Competition, Result, Round } from '@wca/helpers';
-import { useCallback, useMemo } from 'react';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { Competition, Person, Result, Round } from '@wca/helpers';
 import HelpPopover from './HelpPopover';
 
 const rankingResult = (round: Round, result: Result) => {
@@ -26,7 +27,23 @@ export const parseActivityCode = (activityCode: string) => {
   };
 };
 
+interface ExtendedPerson extends Person {
+  sumOfRanks: number;
+  kinch: number;
+  medals: EventId[];
+}
+
+type SortColumns = 'name' | 'kinch' | 'medals' | 'sumOfRanks';
+const sortMethod = {
+  name: (a: ExtendedPerson, b: ExtendedPerson): number => a.name.localeCompare(b.name),
+  kinch: (a: ExtendedPerson, b: ExtendedPerson): number => b.kinch - a.kinch,
+  medals: (a: ExtendedPerson, b: ExtendedPerson): number => b.medals.length - a.medals.length,
+  sumOfRanks: (a: ExtendedPerson, b: ExtendedPerson): number => a.sumOfRanks - b.sumOfRanks,
+};
+
 export default function PersonRankings({ persons, events }: Competition) {
+  const [sort, setSort] = useState<SortColumns>('sumOfRanks');
+
   const eventsExpanded = useMemo(
     () =>
       events.map((event) => ({
@@ -105,7 +122,7 @@ export default function PersonRankings({ persons, events }: Competition) {
             sumOfRanks: rankings.reduce((a, b) => a + b),
             medals: finalRounds.filter((result) => result.ranking <= 3),
             kinch,
-          };
+          } as ExtendedPerson;
         }),
     [events, persons, resultsForPerson]
   );
@@ -115,11 +132,33 @@ export default function PersonRankings({ persons, events }: Competition) {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Position</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Sum of Ranks</TableCell>
-            <TableCell>
-              Kinch
+            <TableCell style={{ margin: '1em 1em' }}>Position</TableCell>
+            <TableCell style={{ margin: '1em 1em' }}>
+              <span
+                style={{ cursor: 'pointer', fontWeight: sort === 'name' ? 'bold' : 'normal' }}
+                onClick={() => setSort('name')}
+              >
+                {sort === 'name' && <ArrowDownwardIcon fontSize="small" />}
+                Name
+              </span>
+            </TableCell>
+            <TableCell style={{ margin: '1em 1em' }}>
+              <span
+                style={{ cursor: 'pointer', fontWeight: sort === 'sumOfRanks' ? 'bold' : 'normal' }}
+                onClick={() => setSort('sumOfRanks')}
+              >
+                {sort === 'sumOfRanks' && <ArrowDownwardIcon fontSize="small" />}
+                Sum of Ranks
+              </span>{' '}
+            </TableCell>
+            <TableCell style={{ margin: '1em 1em' }}>
+              <span
+                style={{ cursor: 'pointer', fontWeight: sort === 'kinch' ? 'bold' : 'normal' }}
+                onClick={() => setSort('kinch')}
+              >
+                {sort === 'kinch' && <ArrowDownwardIcon fontSize="small" />}
+                Kinch
+              </span>
               <HelpPopover>
                 <p>
                   For each person, this is the average and all rounds of
@@ -132,12 +171,20 @@ export default function PersonRankings({ persons, events }: Competition) {
                 </p>
               </HelpPopover>
             </TableCell>
-            <TableCell>Medals</TableCell>
+            <TableCell style={{ margin: '1em 1em' }}>
+              <span
+                style={{ cursor: 'pointer', fontWeight: sort === 'medals' ? 'bold' : 'normal' }}
+                onClick={() => setSort('medals')}
+              >
+                {sort === 'medals' && <ArrowDownwardIcon fontSize="small" />}
+                Medals
+              </span>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {personRanks
-            .sort((a, b) => a.sumOfRanks - b.sumOfRanks)
+            .sort((a, b) => sortMethod[sort]?.(a, b) ?? 0)
             .map((person, index) => (
               <TableRow key={person.registrantId}>
                 <TableCell>{index + 1}</TableCell>
