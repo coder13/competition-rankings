@@ -7,12 +7,10 @@ export default function CompetitionList() {
     data: competitions = [],
     isLoading,
     error,
-    ...query
   } = useGetCompetitionsQuery({
-    end: new Date().toISOString(),
+    start: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
-
-  console.log(competitions, isLoading, error, query);
 
   if (isLoading) {
     return <div>Loading...</div>;

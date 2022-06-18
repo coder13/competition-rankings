@@ -7,8 +7,8 @@ export interface WCAObject {
 export type ISODate = string;
 
 export interface Competition extends WCAObject {
-  url: string;
   id: string;
+  url: string;
   name: string;
   website: string;
   short_name: string;
@@ -19,14 +19,14 @@ export interface Competition extends WCAObject {
   longitude_degrees: number;
   country_iso2: string;
   start_date: ISODate;
+  end_date: ISODate;
   registration_open: ISODate;
   registration_close: ISODate;
   announced_at: ISODate;
   cancelled_at: ISODate | null;
-  end_date: ISODate;
-  delegates?: User[] | null;
-  trainee_delegates?: User[] | null;
-  organizers?: User[] | null;
+  delegates?: User[];
+  trainee_delegates?: User[];
+  organizers?: User[];
   competitor_limit: number;
   event_ids?: EventId[];
 }
