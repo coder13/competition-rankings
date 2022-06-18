@@ -31,16 +31,17 @@ export default function PersonRankings({ persons, events }: Competition) {
     () =>
       events.map((event) => ({
         ...event,
-        rounds: event.rounds.map((round) => ({
-          ...round,
-          eventId: event.id,
-          finalRound: parseActivityCode(round.id)?.roundNumber === event.rounds.length,
-          activitiyId: round.id,
-          winningResult: rankingResult(
-            event.rounds[event.rounds.length - 1],
-            event.rounds[event.rounds.length - 1].results.find((result) => result.ranking === 1)
-          ),
-        })),
+        rounds: event.rounds.map((round) => {
+          const winningResult = round.results.find((result) => result.ranking === 1);
+
+          return {
+            ...round,
+            eventId: event.id,
+            finalRound: parseActivityCode(round.id)?.roundNumber === event.rounds.length,
+            activitiyId: round.id,
+            winningResult: winningResult && rankingResult(round, winningResult),
+          };
+        }),
       })),
     [events]
   );
