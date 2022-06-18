@@ -1,4 +1,4 @@
-import { Divider, TextField } from '@mui/material';
+import { Divider, TextField, Typography } from '@mui/material';
 import CompetitionList from 'Components/CompetitionList';
 import useDebounce from 'Hooks/useDebounce';
 import { useState } from 'react';
@@ -30,8 +30,19 @@ export default function HomePage() {
 
   return (
     <div>
+      <Typography>
+        <br />
+        Welcome to Competition-Rankings! This website will show sum of competition ranks and Kinch
+        scores for everyone at a competition.
+        <br />
+        Note: This website is a WIP and only competitions that used WCA-Live will work.
+        <br />
+        If you navigate to a competition and don't see results, that's either because the
+        competition hasn't ended or that the competition isn't supported yet.
+        <br />
+      </Typography>
       <TextField
-        id="competition-search-basic"
+        id="competition-rankings-competition-search"
         label="Search"
         variant="standard"
         value={searchQuery}
