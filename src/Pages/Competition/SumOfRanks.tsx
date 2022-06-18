@@ -1,13 +1,4 @@
-import {
-  List,
-  ListItem,
-  ListSubheader,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import { ListSubheader, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { Box } from '@mui/system';
 import { Competition } from '@wca/helpers';
 import { useCallback, useMemo } from 'react';
