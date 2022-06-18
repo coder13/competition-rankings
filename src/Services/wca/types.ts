@@ -63,7 +63,7 @@ export interface WCARequestError {
   error: string;
 }
 
-export interface CompetitionFetchArgs {
+export interface FetchCompetitionsArgs {
   start?: ISODate;
   end?: ISODate;
   sort?: string;
