@@ -9,7 +9,6 @@ function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Navigate to={routes.home} replace />}></Route>
         <Route path={routes.home} element={<Home />} />
         <Route path={routes.competition} element={<Competition />} />
       </Route>

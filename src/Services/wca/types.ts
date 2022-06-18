@@ -62,3 +62,9 @@ export interface Avatar {
 export interface WCARequestError {
   error: string;
 }
+
+export interface CompetitionFetchArgs {
+  start?: ISODate;
+  end?: ISODate;
+  sort?: string;
+}

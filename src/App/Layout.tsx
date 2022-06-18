@@ -1,20 +1,14 @@
-import { Link, Outlet } from 'react-router-dom';
-import routes from 'Routes';
+import { Outlet } from 'react-router-dom';
+import { Container } from '@mui/material';
+import { Header } from './Header';
 
 function LayoutComponent() {
   return (
     <div>
-      <div>
-        Menu
-        <ul>
-          <li>
-            <Link to={routes.home}>Home</Link>
-          </li>
-        </ul>
-      </div>
-      <div>
+      <Header />
+      <Container>
         <Outlet />
-      </div>
+      </Container>
     </div>
   );
 }
