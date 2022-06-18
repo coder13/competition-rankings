@@ -1,7 +1,8 @@
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { Box } from '@mui/system';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { Competition, Result, Round } from '@wca/helpers';
 import { useCallback, useMemo } from 'react';
+import HelpPopover from './HelpPopover';
 
 const rankingResult = (round: Round, result: Result) => {
   switch (round.format) {
@@ -116,7 +117,20 @@ export default function PersonRankings({ persons, events }: Competition) {
             <TableCell>Position</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Sum of Ranks</TableCell>
-            <TableCell>Kinch</TableCell>
+            <TableCell>
+              Kinch
+              <HelpPopover>
+                <p>
+                  For each person, this is the average and all rounds of
+                  <br />
+                  <code>winning result / ranking result</code>
+                </p>
+                <p>
+                  If the winning result or ranking result is not a valid result, the kinch is
+                  assumed to be 0.
+                </p>
+              </HelpPopover>
+            </TableCell>
             <TableCell>Medals</TableCell>
           </TableRow>
         </TableHead>
