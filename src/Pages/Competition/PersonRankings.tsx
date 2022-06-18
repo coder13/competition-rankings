@@ -1,8 +1,17 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Box } from '@mui/system';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import {
+  FormControlLabel,
+  FormGroup,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@mui/material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { Competition, Person, Result, Round } from '@wca/helpers';
+import { Competition, EventId, Person, Result, Round } from '@wca/helpers';
 import HelpPopover from './HelpPopover';
 
 const rankingResult = (round: Round, result: Result) => {
@@ -43,6 +52,7 @@ const sortMethod = {
 
 export default function PersonRankings({ persons, events }: Competition) {
   const [sort, setSort] = useState<SortColumns>('sumOfRanks');
+  const [onlyFinalRounds, setOnlyFinalRounds] = useState(true);
 
   const eventsExpanded = useMemo(
     () =>
@@ -94,8 +104,9 @@ export default function PersonRankings({ persons, events }: Competition) {
             }))
             .reduce((xs, x) => xs.concat(x), [])
         )
-        .reduce((xs, x) => xs.concat(x), []),
-    [eventsExpanded]
+        .reduce((xs, x) => xs.concat(x), [])
+        .filter((result) => (onlyFinalRounds ? result.finalRound : true)),
+    [eventsExpanded, onlyFinalRounds]
   );
 
   const personRanks = useMemo(
@@ -129,6 +140,19 @@ export default function PersonRankings({ persons, events }: Competition) {
 
   return (
     <Box>
+      <Box>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={onlyFinalRounds}
+                onChange={(e) => setOnlyFinalRounds(e.currentTarget.checked)}
+              />
+            }
+            label="Only final rounds"
+          />
+        </FormGroup>
+      </Box>
       <Table>
         <TableHead>
           <TableRow>
