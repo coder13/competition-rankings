@@ -86,7 +86,7 @@ export default function PersonRankings({ persons, events }: Competition) {
                 activityCode: round.id,
                 finalRound: round.finalRound,
                 ...(result ?? {
-                  ranking: round.results.length,
+                  ranking: round.results.length + 1,
                 }),
                 kinch:
                   event.id !== '333mbf' &&
