@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Box } from '@mui/system';
 import {
+  Alert,
   FormControlLabel,
   FormGroup,
   Switch,
@@ -36,7 +37,7 @@ export const parseActivityCode = (activityCode: string) => {
   };
 };
 
-const computeKinch = (eventId: String, round: Round, winningResult: Number, result: Result) => {
+const computeKinch = (eventId: String, round: Round, winningResult: number, result: Result) => {
   if (!winningResult || !result) {
     return 0;
   }
@@ -83,10 +84,16 @@ export default function PersonRankings({ persons, events }: Competition) {
             finalRound: parseActivityCode(round.id)?.roundNumber === event.rounds.length,
             activitiyId: round.id,
             winningResult: winningResult && rankingResult(round, winningResult),
+            missingResults: round.results.filter((result) => !result.ranking),
           };
         }),
       })),
     [events]
+  );
+
+  const allMissingResults = useMemo(
+    () => eventsExpanded.reduce((acc, event) => acc.concat(event.rounds.flatMap((round) => round.missingResults)), []),
+    [eventsExpanded]
   );
 
   const resultsForPerson = useCallback(
@@ -149,6 +156,12 @@ export default function PersonRankings({ persons, events }: Competition) {
 
   return (
     <Box>
+      {allMissingResults.length > 0 && (
+        <Alert severity="warning">
+          <p>This competition may not be over or the organization staff have not synchronized all of the results.
+          There are currently {allMissingResults.length} Missing Results.</p>
+        </Alert>
+      )}
       <Box>
         <FormGroup>
           <FormControlLabel
