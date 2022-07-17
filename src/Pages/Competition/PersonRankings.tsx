@@ -14,15 +14,15 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Competition, EventId, Person, Result, Round } from '@wca/helpers';
 import HelpPopover from './HelpPopover';
 
-const rankingResult = (round: Round, result: Result) => {
+const rankingResult = (round: Round, result: Result): number => {
   switch (round.format) {
     case '1':
     case '2':
     case '3':
-      return result.best;
+      return result.best as number;
     case 'a':
     case 'm':
-      return result.average;
+      return result.average as number;
   }
 };
 
@@ -36,20 +36,20 @@ export const parseActivityCode = (activityCode: string) => {
   };
 };
 
-const computeKinch = (eventId, round, winningResult, result) => {
-  if (!winningResult) {
+const computeKinch = (eventId: String, round: Round, winningResult: Number, result: Result) => {
+  if (!winningResult || !result) {
     return 0;
   }
 
-  if (rankingResult(round, result) <= 0 || rankingResult(round, winningResult) <= 0) {
+  if (rankingResult(round, result) <= 0) {
     return 0;  
   }
 
   if (eventId === '333mbf') {
-    return result.best / winningResult.best;
+    return (result.best as number) / winningResult;
   }
 
-  return (winningResult as number) / (rankingResult(round, result) as number)
+  return winningResult / (rankingResult(round, result) as number)
 }
 
 interface ExtendedPerson extends Person {
