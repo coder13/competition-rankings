@@ -36,6 +36,22 @@ export const parseActivityCode = (activityCode: string) => {
   };
 };
 
+const computeKinch = (eventId, round, winningResult, result) => {
+  if (!winningResult) {
+    return 0;
+  }
+
+  if (rankingResult(round, result) <= 0 || rankingResult(round, winningResult) <= 0) {
+    return 0;  
+  }
+
+  if (eventId === '333mbf') {
+    return result.best / winningResult.best;
+  }
+
+  return (winningResult as number) / (rankingResult(round, result) as number)
+}
+
 interface ExtendedPerson extends Person {
   sumOfRanks: number;
   kinch: number;
@@ -88,14 +104,7 @@ export default function PersonRankings({ persons, events }: Competition) {
                 ...(result ?? {
                   ranking: round.results.length + 1,
                 }),
-                kinch:
-                  event.id !== '333mbf' &&
-                  result &&
-                  winningResult &&
-                  winningResult > 0 &&
-                  rankingResult(round, result) > 0
-                    ? (winningResult as number) / (rankingResult(round, result) as number)
-                    : 0,
+                kinch: computeKinch(event.id, round, winningResult, result),
               };
             })
             .map((result) => ({
@@ -131,7 +140,7 @@ export default function PersonRankings({ persons, events }: Competition) {
           return {
             ...person,
             sumOfRanks: rankings.reduce((a, b) => a + b),
-            medals: finalRounds.filter((result) => result.ranking <= 3),
+            medals: finalRounds.filter((result) => result.ranking && result.ranking <= 3),
             kinch,
           } as ExtendedPerson;
         }),
