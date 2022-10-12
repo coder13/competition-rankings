@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Box } from '@mui/system';
 import {
+  Alert,
   FormControlLabel,
   FormGroup,
   Switch,
@@ -14,15 +15,15 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Competition, EventId, Person, Result, Round } from '@wca/helpers';
 import HelpPopover from './HelpPopover';
 
-const rankingResult = (round: Round, result: Result) => {
+const rankingResult = (round: Round, result: Result): number => {
   switch (round.format) {
     case '1':
     case '2':
     case '3':
-      return result.best;
+      return result.best as number;
     case 'a':
     case 'm':
-      return result.average;
+      return result.average as number;
   }
 };
 
@@ -35,6 +36,22 @@ export const parseActivityCode = (activityCode: string) => {
     attemptNumber: a && parseInt(a, 10),
   };
 };
+
+const computeKinch = (eventId: String, round: Round, winningResult: number, result: Result) => {
+  if (!winningResult || !result) {
+    return 0;
+  }
+
+  if (rankingResult(round, result) <= 0) {
+    return 0;  
+  }
+
+  if (eventId === '333mbf') {
+    return (result.best as number) / winningResult;
+  }
+
+  return winningResult / (rankingResult(round, result) as number)
+}
 
 interface ExtendedPerson extends Person {
   sumOfRanks: number;
@@ -67,10 +84,16 @@ export default function PersonRankings({ persons, events }: Competition) {
             finalRound: parseActivityCode(round.id)?.roundNumber === event.rounds.length,
             activitiyId: round.id,
             winningResult: winningResult && rankingResult(round, winningResult),
+            missingResults: round.results.filter((result) => !result.ranking),
           };
         }),
       })),
     [events]
+  );
+
+  const allMissingResults = useMemo(
+    () => eventsExpanded.reduce((acc, event) => acc.concat(event.rounds.flatMap((round) => round.missingResults)), []),
+    [eventsExpanded]
   );
 
   const resultsForPerson = useCallback(
@@ -86,16 +109,9 @@ export default function PersonRankings({ persons, events }: Competition) {
                 activityCode: round.id,
                 finalRound: round.finalRound,
                 ...(result ?? {
-                  ranking: round.results.length,
+                  ranking: round.results.length + 1,
                 }),
-                kinch:
-                  event.id !== '333mbf' &&
-                  result &&
-                  winningResult &&
-                  winningResult > 0 &&
-                  rankingResult(round, result) > 0
-                    ? (winningResult as number) / (rankingResult(round, result) as number)
-                    : 0,
+                kinch: computeKinch(event.id, round, winningResult, result),
               };
             })
             .map((result) => ({
@@ -131,7 +147,7 @@ export default function PersonRankings({ persons, events }: Competition) {
           return {
             ...person,
             sumOfRanks: rankings.reduce((a, b) => a + b),
-            medals: finalRounds.filter((result) => result.ranking <= 3),
+            medals: finalRounds.filter((result) => result.ranking && result.ranking <= 3),
             kinch,
           } as ExtendedPerson;
         }),
@@ -140,6 +156,12 @@ export default function PersonRankings({ persons, events }: Competition) {
 
   return (
     <Box>
+      {allMissingResults.length > 0 && (
+        <Alert severity="warning">
+          <p>This competition may not be over or the organization staff have not synchronized all of the results.
+          There are currently {allMissingResults.length} Missing Results.</p>
+        </Alert>
+      )}
       <Box>
         <FormGroup>
           <FormControlLabel
