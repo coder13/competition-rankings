@@ -15,6 +15,14 @@ export default function Competition() {
     return <div>Error!</div>;
   }
 
+  useEffect(() => {
+    if (competition) {
+      document.title = `${competition.shortName} - Competition Rankings`;
+    } else {
+      document.title = 'Competition Rankings';
+    }
+  }, [competition]);
+
   return (
     <div>
       <p>{competition.name}</p>
